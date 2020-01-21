@@ -8,7 +8,6 @@ import pygame
 SCREEN_TITLE = 'Hexago'
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
-FPS = 60
 
 # Colors according to the RGB codes
 BLACK = (  0,   0,   0)
@@ -37,7 +36,7 @@ class Game:
         self.game_screen.fill(BLACK)
         pygame.display.set_caption(SCREEN_TITLE)
 
-# Set background image of game
+        # Set background image of game
         background_image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(background_image, (width, height))
 
@@ -49,7 +48,7 @@ class Game:
         player = Player("images/player.png", 375, 700, 50, 50)
 
 
-    # screen.blit(cursor, (x-cursor.get_width()/2), cursor_top())
+        # screen.blit(cursor, (x-cursor.get_width()/2), cursor_top())
 
         enemy_0 = Enemy("images/enemy.png", 375, 0, 50, 50)
         # enemy_0top = enemy1.get_height() - enemy_0.get_height()
@@ -63,12 +62,12 @@ class Game:
         enemy_2 = Enemy('images/enemy.png', 20, 200, 50, 50)
         enemy_2.SPEED *= level_speed
 
-        # Main game loop used to update all gameplay such as movement, checks, and
-        #  graphices until game_over
+        # Main game loop used to update all gameplay such as movement, checks,
+        # and graphices until game_over
 
         while not is_game_over:
             x, y = pygame.mouse.get_pos()
-        #Continuously check for key and mouse inputs
+        # Continuously check for key and mouse inputs
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     is_game_over = True
@@ -77,7 +76,7 @@ class Game:
                     shoot_x = x
                 print(event)
 
-# For future game background image
+        # Character appearance and movement
             self.game_screen.fill(BLACK)
             self.game_screen.blit(self.image, (0, 0))
 
@@ -101,32 +100,19 @@ class Game:
                 pygame.display.update()
                 waiting = True
                 while waiting:
-                    clock.tick(FPS)
+                    clock.tick(TICK_RATE)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
                         if event.type == pygame.KEYUP:
                             waiting = False
-                # clock.tick(999999**99999)
-                # break
+
 
 
             pygame.display.update()
 
             clock.tick(self.TICK_RATE)
 
-
-
-
-# pygame.display.update()
-
-# screen.fill((BLACK))
-
-
-
-
-# pygame.mouse.set_visible(1)
-# pygame.mouse.set_cursor()
 
 class GameObject:
 
@@ -175,10 +161,6 @@ class Enemy(GameObject):
             self.SPEED = -abs(self.SPEED)
         self.y_pos += self.SPEED
 
-
-
-
-
 pygame.init()
 
 new_game = Game('images/background.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -186,7 +168,3 @@ new_game.run_game_loop(1)
 
 pygame.quit()
 quit()
-
-
-    # enemy1.move(self.width)
-    # enemy1.draw(self.game_screen)
