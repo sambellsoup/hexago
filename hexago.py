@@ -2,12 +2,13 @@
 
 # Access pygame library
 import pygame
-
+import random
 
 # Size and Title of the screen
 SCREEN_TITLE = 'Hexago'
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
+FPS = 60
 
 # Colors according to the RGB codes
 BLACK = (  0,   0,   0)
@@ -17,6 +18,8 @@ GREEN = (  0, 255,   0)
 RED =   (255,   0,   0)
 
 # Clock used to update game events and frames
+pygame.init()
+pygame.mixer.init()
 clock = pygame.time.Clock()
 pygame.font.init()
 font = pygame.font.SysFont('comicsans', 75)
@@ -100,16 +103,14 @@ class Game:
                 pygame.display.update()
                 waiting = True
                 while waiting:
-                    clock.tick(TICK_RATE)
+                    clock.tick(FPS)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
                         if event.type == pygame.KEYUP:
                             waiting = False
 
-
-
-            pygame.display.update()
+            pygame.display.flip()
 
             clock.tick(self.TICK_RATE)
 
@@ -160,8 +161,6 @@ class Enemy(GameObject):
         elif self.y_pos >= max_width - 40:
             self.SPEED = -abs(self.SPEED)
         self.y_pos += self.SPEED
-
-pygame.init()
 
 new_game = Game('images/background.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
 new_game.run_game_loop(1)
