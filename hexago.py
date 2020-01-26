@@ -3,6 +3,7 @@
 # Access pygame library
 import pygame
 import random
+import os
 
 # Size and Title of the screen
 SCREEN_TITLE = 'Hexago'
@@ -24,8 +25,10 @@ clock = pygame.time.Clock()
 pygame.font.init()
 font = pygame.font.SysFont('comicsans', 75)
 
+all_sprites = pygame.sprite.Group()
 
-class Game:
+
+class Game():
     # Typical rate of 60, equivalent to FPS
     TICK_RATE = 60
 
@@ -79,7 +82,13 @@ class Game:
                     shoot_x = x
                 print(event)
 
+        # update
+            all_sprites.update()
+
+        # draw/render
+
         # Character appearance and movement
+            all_sprites.draw(self.game_screen)
             self.game_screen.fill(BLACK)
             self.game_screen.blit(self.image, (0, 0))
 
@@ -115,12 +124,14 @@ class Game:
             clock.tick(self.TICK_RATE)
 
 
-class GameObject:
+class GameObject():
 
     def __init__(self, image_path, x, y, width, height):
         object_image = pygame.image.load(image_path)
         # Scale the image up
         self.image = pygame.transform.scale(object_image, (width, height))
+        self.rect = self.image.get_rect()
+        self.rect.center = (width / 2, height/2)
 
         self.x_pos = x
         self.y_pos = y
@@ -133,8 +144,10 @@ class GameObject:
 
 
 class Player(GameObject):
+    # Sprite for the player
     def __init__ (self, image_path, x, y, width, height):
         super().__init__(image_path, x, y, width, height)
+        self.rect = self.image.get_rect()
 
     def detect_collision(self, other_body):
         if self.y_pos > other_body.y_pos + other_body.height:
