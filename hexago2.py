@@ -16,20 +16,54 @@ BLUE = (0, 0, 255)
 
 # set up assets folders
 game_folder = os.path.dirname(__file__)
+img_folder = os.path.join(game_folder, "images")
 
 class Player(pygame.sprite.Sprite):
     # sprite for the Player
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 50))
+        # self.image = pygame.image.load(os.path.join(img_folder, "player.png")).convert()
+        # self.image.set_colorkey(RED)
+        self.image = pygame.Surface((800, 60))
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.rect.centerx = WIDTH / 2
+        self.rect.bottom = HEIGHT - 10
+        self.speedx = 0
 
     def update(self):
-        self.rect.x += 5
-        if self.rect.left > WIDTH:
-            self.rect.right = 0
+        self.speedx = 0
+        keystate = pygame.key.get_pressed()
+        # if keystate[pygame.K_a]:
+            # movement left
+            # self.speedx = -8
+        # if keystate[pygame.K_s]:
+            # movement right
+            # self.speedx = 8
+        self.rect.x += self.speedx
+        # Constrained to stay on the screen
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        if self.rect.left < 0:
+            self.rect.left = 0
+
+class Mob(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((30, 40))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        # Always appears somewhere between the left and right
+        self.rect.x = random.randrange(WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100, -40)
+        self.speedy = random.randrange(1, 8)
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.top > HEIGHT + 10:
+            self.rect.x = random.randrange(WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100, -40)
+            self.speedy = random.randrange(1, 8)
 
 # initiate pygame and create window
 pygame.init()
@@ -39,8 +73,14 @@ pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
+for i in range(8):
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
+
 #  Game loop
 running = True
 while running:
