@@ -57,10 +57,12 @@ class Mob(pygame.sprite.Sprite):
         self.rect.x = random.randrange(WIDTH - self.rect.width)
         self.rect.y = random.randrange(-100, -40)
         self.speedy = random.randrange(1, 8)
+        self.speedx = random.randrange(-3, 3)
 
     def update(self):
+        self.rect.x += self.speedx
         self.rect.y += self.speedy
-        if self.rect.top > HEIGHT + 10:
+        if self.rect.top > HEIGHT + 10 or self.rect.left < -25 or self.rect.right > WIDTH + 20:
             self.rect.x = random.randrange(WIDTH - self.rect.width)
             self.rect.y = random.randrange(-100, -40)
             self.speedy = random.randrange(1, 8)
@@ -94,6 +96,11 @@ while running:
 
 # Update
     all_sprites.update()
+
+    # check to see if a mob hit the Player
+    hits = pygame.sprite.spritecollide(player, mobs, False)
+    if hits:
+        running = False
 
 # Draw / render
     screen.fill(BLACK)
