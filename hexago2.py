@@ -2,6 +2,9 @@
 import pygame
 import random
 import os
+from os import path
+
+img_dir = path.join(path.dirname(__file__), 'images')
 
 WIDTH = 800
 HEIGHT = 600
@@ -17,7 +20,7 @@ YELLOW = (255, 255, 0)
 
 # set up assets folders
 game_folder = os.path.dirname(__file__)
-img_folder = os.path.join(game_folder, "images")
+img_folder = os.path.join(game_folder, 'images')
 
 class Player(pygame.sprite.Sprite):
     # sprite for the Player
@@ -25,8 +28,8 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         # self.image = pygame.image.load(os.path.join(img_folder, "player.png")).convert()
         # self.image.set_colorkey(RED)
-        self.image = pygame.Surface((800, 60))
-        self.image.fill(GREEN)
+        self.image = pygame.transform.scale(player_img, (800, 60))
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
@@ -57,8 +60,8 @@ class Player(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 40))
-        self.image.fill(RED)
+        self.image = small_enemy_img
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         # Always appears somewhere between the left and right
         self.rect.x = random.randrange(WIDTH - self.rect.width)
@@ -77,14 +80,14 @@ class Mob(pygame.sprite.Sprite):
 class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 20))
-        self.image.fill(YELLOW)
+        self.image = spell_img
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.bottom = mousey
         self.rect.centerx = mousex
 
 
-    def update(self):
+    # def update(self):
         # self.rect.y += self.speedy
         # kill if it moves off the top of the screen
         # if self.rect.botom < 0:
@@ -96,6 +99,14 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
+
+# Load all game graphics
+# background = pygame.image.load(path.join(img_dir, "strafield.png")).convert()
+# background_rect = background.get_rect()
+player_img = pygame.image.load(path.join(img_dir, "altar.png")).convert()
+small_enemy_img = pygame.image.load(path.join(img_dir, "small_bad.png")).convert()
+spell_img = pygame.image.load(path.join(img_dir, "boom.png")).convert()
+
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
@@ -139,6 +150,7 @@ while running:
 
 # Draw / render
     screen.fill(BLACK)
+    # screen.blit(background, background_rect)
     all_sprites.draw(screen)
     # after drawing everything, flip the display
     pygame.display.flip()
