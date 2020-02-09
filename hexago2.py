@@ -31,6 +31,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(player_img, (800, 60))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
+        self.radius = 350
+        pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0
@@ -60,16 +62,35 @@ class Player(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = small_enemy_img
-        self.image.set_colorkey(BLACK)
+        self.image_orig = random.choice(enemy_images)
+        self.image_orig = small_enemy_img
+        self.image_orig.set_colorkey(BLACK)
+        self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width * .4 / 2)
+        # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         # Always appears somewhere between the left and right
         self.rect.x = random.randrange(WIDTH - self.rect.width)
-        self.rect.y = random.randrange(-100, -40)
+        self.rect.y = random.randrange(-150, -100)
         self.speedy = random.randrange(1, 2)
         self.speedx = random.randrange(-1, 1)
+        self.rot = 0
+        self.rot_speed = random.randrange(-8, 8)
+        self.last_update = pygame.time.get_ticks()
+
+    def rotate(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 50:
+            self.last_updae = now
+            self.rot = (self.rot + self.rot_speed) % 360
+            new_image = pygame.transform.rotate(self.image_orig, self.rot)
+            old_center = self.rect.center
+            self.image = new_image
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
 
     def update(self):
+        self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.top > HEIGHT + 10 or self.rect.left < -25 or self.rect.right > WIDTH + 20:
@@ -106,6 +127,10 @@ clock = pygame.time.Clock()
 player_img = pygame.image.load(path.join(img_dir, "altar.png")).convert()
 small_enemy_img = pygame.image.load(path.join(img_dir, "small_bad.png")).convert()
 spell_img = pygame.image.load(path.join(img_dir, "boom.png")).convert()
+enemy_images = []
+enemy_list = ["small_bad.png"]
+for img in enemy_list:
+    enemy_images.append(pygame.image.load(path.join(img_dir, img)).convert())
 
 
 all_sprites = pygame.sprite.Group()
@@ -145,6 +170,7 @@ while running:
         mobs.add(m)
     # check to see if a mob hit the Player
     hits = pygame.sprite.spritecollide(player, mobs, False)
+    # pygame.sprite.collide_circle
     if hits:
         running = False
 
