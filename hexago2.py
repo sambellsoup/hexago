@@ -18,6 +18,21 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
+# initialize pygame and create window
+pygame.init()
+pygame.mixer.init()
+# screen = pygame.display.set_mode(WIDTH, HEIGHT)
+pygame.display.set_caption("Hexago")
+clock = pygame.time.Clock()
+
+font_name = pygame.font.match_font('arial')
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
+
 # set up assets folders
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, 'images')
@@ -142,6 +157,7 @@ for i in range(8):
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
+score = 0
 
 #  Game loop
 running = True
@@ -165,9 +181,11 @@ while running:
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     # respawns enemies as they are hit
     for hit in hits:
+        score += 10
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
+
     # check to see if a mob hit the Player
     hits = pygame.sprite.spritecollide(player, mobs, False)
     # pygame.sprite.collide_circle
@@ -178,6 +196,7 @@ while running:
     screen.fill(BLACK)
     # screen.blit(background, background_rect)
     all_sprites.draw(screen)
+    draw_text(screen, "Score: " + str(score), 10, WIDTH / 2, 10)
     # after drawing everything, flip the display
     pygame.display.flip()
 
