@@ -5,6 +5,7 @@ import os
 from os import path
 
 img_dir = path.join(path.dirname(__file__), 'images')
+snd_dir = path.join(path.dirname(__file__), 'audio')
 
 WIDTH = 800
 HEIGHT = 600
@@ -121,6 +122,7 @@ class Spell(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = mousey
         self.rect.centerx = mousex
+        cast_sound.play()
 
 
     # def update(self):
@@ -146,7 +148,11 @@ enemy_images = []
 enemy_list = ["small_bad.png"]
 for img in enemy_list:
     enemy_images.append(pygame.image.load(path.join(img_dir, img)).convert())
-
+# Load all game sounds
+cast_sound = pygame.mixer.Sound(path.join(snd_dir, 'burst_attack.wav'))
+hit_sound = pygame.mixer.Sound(path.join(snd_dir, 'hit.wav'))
+pygame.mixer.music.load(path.join(snd_dir, 'hexago.wav'))
+pygame.mixer.music.set_volume(0.4)
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
@@ -158,6 +164,8 @@ for i in range(8):
     all_sprites.add(m)
     mobs.add(m)
 score = 0
+# Able to play playlist to extend music
+pygame.mixer.music.play(loops=-1)
 
 #  Game loop
 running = True
@@ -182,6 +190,8 @@ while running:
     # respawns enemies as they are hit
     for hit in hits:
         score += 10
+        # Show damage against enemy in numbers above them
+        hit_sound.play()
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
