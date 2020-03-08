@@ -39,6 +39,17 @@ def newmob():
     all_sprites.add(m)
     mobs.add(m)
 
+def draw_shield_bar(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct / 100) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
 # set up assets folders
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, 'images')
@@ -213,6 +224,7 @@ while running:
     # screen.blit(background, background_rect)
     all_sprites.draw(screen)
     draw_text(screen, "Score: " + str(score), 10, WIDTH / 2, 10)
+    draw_shield_bar(screen, 5, 5, player.shield)
     # after drawing everything, flip the display
     pygame.display.flip()
 
