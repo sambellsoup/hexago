@@ -34,6 +34,11 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
+def newmob():
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
+
 # set up assets folders
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, 'images')
@@ -52,6 +57,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0
+        self.shield = 100
 
     def update(self):
         self.speedx = 0
@@ -152,7 +158,7 @@ for img in enemy_list:
 cast_sound = pygame.mixer.Sound(path.join(snd_dir, 'burst_attack.wav'))
 hit_sound = pygame.mixer.Sound(path.join(snd_dir, 'hit.wav'))
 pygame.mixer.music.load(path.join(snd_dir, 'hexago.wav'))
-pygame.mixer.music.set_volume(0.4)
+# pygame.mixer.music.set_volume(0.4)
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
@@ -160,9 +166,8 @@ spells = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 for i in range(8):
-    m = Mob()
-    all_sprites.add(m)
-    mobs.add(m)
+    newmob()
+
 score = 0
 # Able to play playlist to extend music
 pygame.mixer.music.play(loops=-1)
@@ -192,15 +197,16 @@ while running:
         score += 10
         # Show damage against enemy in numbers above them
         hit_sound.play()
-        m = Mob()
-        all_sprites.add(m)
-        mobs.add(m)
+        newmob()
 
     # check to see if a mob hit the Player
-    hits = pygame.sprite.spritecollide(player, mobs, False)
+    hits = pygame.sprite.spritecollide(player, mobs, True)
+    for hit in hits:
+        player.shield -= hit.radius * 2
+        newmob()
     # pygame.sprite.collide_circle
-    if hits:
-        running = False
+        if player.shield <= 0:
+            running = False
 
 # Draw / render
     screen.fill(BLACK)
