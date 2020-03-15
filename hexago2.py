@@ -79,6 +79,8 @@ class Player(pygame.sprite.Sprite):
         # if keystate[pygame.K_s]:
             # movement right
             # self.speedx = 8
+        if keystate[pygame.MOUSEBUTTONDOWN]:
+            self.cast()
         self.rect.x += self.speedx
         # Constrained to stay on the screen
         if self.rect.right > WIDTH:
@@ -87,10 +89,13 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
 
     def cast(self):
-        mousex, mousey = pygame.mouse.get_pos()
-        spell = Spell(self.rect.centerx, self.rect.top)
-        all_sprites.add(spell)
-        spells.add(spell)
+        now = pygame.time.get_ticks()
+        if now - self.last_shot > self.shoot_delay:
+            self.last_shot = now
+            mousex, mousey = pygame.mouse.get_pos()
+            spell = Spell(self.rect.centerx, self.rect.top)
+            all_sprites.add(spell)
+            spells.add(spell)
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -165,6 +170,10 @@ enemy_images = []
 enemy_list = ["small_bad.png"]
 for img in enemy_list:
     enemy_images.append(pygame.image.load(path.join(img_dir, img)).convert())
+explosion_anim = {}
+explosion_anim['lg'] = []
+explosion_anim['med'] = []
+explosion_anim['sm'] = []
 # Load all game sounds
 cast_sound = pygame.mixer.Sound(path.join(snd_dir, 'burst_attack.wav'))
 hit_sound = pygame.mixer.Sound(path.join(snd_dir, 'hit.wav'))
