@@ -165,7 +165,7 @@ clock = pygame.time.Clock()
 # background_rect = background.get_rect()
 player_img = pygame.image.load(path.join(img_dir, "altar.png")).convert()
 small_enemy_img = pygame.image.load(path.join(img_dir, "small_bad.png")).convert()
-spell_img = pygame.image.load(path.join(img_dir, "boom.png")).convert()
+spell_img = pygame.image.load(path.join(img_dir, "red_burst.png")).convert()
 enemy_images = []
 enemy_list = ["small_bad.png"]
 for img in enemy_list:
@@ -174,6 +174,14 @@ explosion_anim = {}
 explosion_anim['lg'] = []
 explosion_anim['med'] = []
 explosion_anim['sm'] = []
+for i in range(3):
+    filename = 'white_boom.png', 'white_burst.png'
+    img = pygame.image.load(path.join(img_dir, filename)).convert()
+    img.set_colorkey(BLACK)
+    img_lg = pygame.transform.scale(img, (75, 75))
+    explosion_anim['lg'].append(img_lg)
+    img_sm = pygame.transform.scale(img, (32, 32))
+    explosion_anim['sm'].append(img_sm)
 # Load all game sounds
 cast_sound = pygame.mixer.Sound(path.join(snd_dir, 'burst_attack.wav'))
 hit_sound = pygame.mixer.Sound(path.join(snd_dir, 'hit.wav'))
