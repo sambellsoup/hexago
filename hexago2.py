@@ -146,6 +146,30 @@ class Spell(pygame.sprite.Sprite):
         self.rect.centerx = mousex
         cast_sound.play()
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, center, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.size = size
+        self.image = explosion_anim[self.size][0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+
+    def update(self):
+        row = pygame.time.get_ticks()
+        if use = self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(explosion_anim[self.size]):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = explosion_anim[self.size][self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+
 
     # def update(self):
         # self.rect.y += self.speedy
@@ -175,7 +199,7 @@ explosion_anim['lg'] = []
 explosion_anim['med'] = []
 explosion_anim['sm'] = []
 for i in range(3):
-    filename = 'white_boom.png', 'white_burst.png'
+    filename = 'white_explosion_{}.png'.format(i)
     img = pygame.image.load(path.join(img_dir, filename)).convert()
     img.set_colorkey(BLACK)
     img_lg = pygame.transform.scale(img, (75, 75))
@@ -225,6 +249,8 @@ while running:
         score += 10
         # Show damage against enemy in numbers above them
         hit_sound.play()
+        expl = Explosion(hit.rect.center, 'lg')
+        all_sprites.add(expl)
         newmob()
 
     # check to see if a mob hit the Player
