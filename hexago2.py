@@ -159,7 +159,7 @@ class Explosion(pygame.sprite.Sprite):
 
     def update(self):
         row = pygame.time.get_ticks()
-        if use = self.last_update > self.frame_rate:
+        if use == self.last_update > self.frame_rate:
             self.last_update = now
             self.frame += 1
             if self.frame == len(explosion_anim[self.size]):
@@ -200,7 +200,7 @@ explosion_anim['med'] = []
 explosion_anim['sm'] = []
 for i in range(3):
     filename = 'white_explosion_{}.png'.format(i)
-    img = pygame.image.load(path.join(img_dir, filename)).convert()
+    img == pygame.image.load(path.join(img_dir, filename)).convert()
     img.set_colorkey(BLACK)
     img_lg = pygame.transform.scale(img, (75, 75))
     explosion_anim['lg'].append(img_lg)
