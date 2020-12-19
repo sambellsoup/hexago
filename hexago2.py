@@ -177,7 +177,7 @@ class Explosion(pygame.sprite.Sprite):
         # if self.rect.botom < 0:
         # self.kill()
 
-# initiate pygame and create window
+# initialize pygame and create window
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))

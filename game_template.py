@@ -37,7 +37,7 @@ while running:
     for event in pygame.event.get():
         # check for closing window
         if event.type == pygame.QUIT:
-            running == False
+            running = False
 
     # Update
 
@@ -47,6 +47,7 @@ while running:
     pygame.display.flip()
 
 pygame.quit()
+quit()
 
 """
 pygame.font.init()
