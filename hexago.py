@@ -6,7 +6,7 @@ import random
 import os
 
 # Size and Title of the screen
-SCREEN_TITLE = 'My Game'
+SCREEN_TITLE = 'Hexago'
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 FPS = 60
@@ -21,13 +21,30 @@ YELLOW = (255, 0, 255)
 PURPLE = (255, 0, 255)
 TEAL = (0, 255, 255)
 
+class Player(pygame.sprite.Sprite):
+    #sprite for the Player
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((50, 50))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
+    def update(self):
+        self.rect.x += 5
+        if self.rect.left > SCREEN_WIDTH:
+            self.rect.right = 0
+
 # initialize pygame and create window
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("My Game")
+pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
 
+all_sprites = pygame.sprite.Group()
+player = Player()
+all_sprites.add(player)
 # Game loop
 running = True
 while running:
@@ -37,16 +54,19 @@ while running:
     for event in pygame.event.get():
         # check for closing window
         if event.type == pygame.QUIT:
-            running == False
+            running = False
 
     # Update
+    all_sprites.update()
 
     # Draw / render
     screen.fill(BLACK)
+    all_sprites.draw(screen)
     # *after* drawing everything, flip the display
     pygame.display.flip()
 
 pygame.quit()
+quit()
 
 """
 pygame.font.init()
