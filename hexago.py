@@ -21,17 +21,27 @@ YELLOW = (255, 0, 255)
 PURPLE = (255, 0, 255)
 TEAL = (0, 255, 255)
 
+# set up assets folders
+game_folder = os.path.dirname(__file__)
+img_folder = os.path.join(game_folder, "img")
+
 class Player(pygame.sprite.Sprite):
     #sprite for the Player
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 50))
-        self.image.fill(GREEN)
+        self.image = pygame.image.load(os.path.join(img_folder, "tower_1.png")).convert()
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.y_speed = 5
 
     def update(self):
         self.rect.x += 5
+        self.rect.y += self.y_speed
+        if self.rect.bottom > HEIGHT - 200:
+            self.y_speed = -5
+        if self.rect.top < 200:
+            self.y_speed = 5
         if self.rect.left > SCREEN_WIDTH:
             self.rect.right = 0
 
@@ -71,8 +81,6 @@ quit()
 """
 pygame.font.init()
 font = pygame.font.SysFont('comicsans', 75)
-
-all_sprites = pygame.sprite.Group()
 
 
 class Game():
