@@ -32,18 +32,10 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join(img_folder, "tower_1.png")).convert()
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        self.y_speed = 5
+        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT-20)
 
-    def update(self):
-        self.rect.x += 5
-        self.rect.y += self.y_speed
-        if self.rect.bottom > HEIGHT - 200:
-            self.y_speed = -5
-        if self.rect.top < 200:
-            self.y_speed = 5
-        if self.rect.left > SCREEN_WIDTH:
-            self.rect.right = 0
+    # def update(self):
+
 
 # initialize pygame and create window
 pygame.init()
