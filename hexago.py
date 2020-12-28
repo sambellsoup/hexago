@@ -7,8 +7,8 @@ import os
 
 # Size and Title of the screen
 SCREEN_TITLE = 'Hexago'
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 FPS = 60
 
 # Colors according to the RGB codes
