@@ -34,7 +34,13 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT-20)
 
-    # def update(self):
+    def update(self):
+        keystate = pygame.key.get_pressed()
+        # if keystate[pygame.<nameofkey>]:
+            # self.<quality> = change
+        # make border of screen wall
+        # if self.rect.right > SCREEN_WIDTH:
+            # self.rect.right = SCREEN_WIDTH
 
 
 # initialize pygame and create window
