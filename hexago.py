@@ -42,6 +42,26 @@ class Player(pygame.sprite.Sprite):
         # if self.rect.right > SCREEN_WIDTH:
             # self.rect.right = SCREEN_WIDTH
 
+class Mob(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        # Enemy spawns randomly across screen
+        self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100, -40)
+        self.speedy = random.randrange(1, 8)
+        self.speedx = random.randrange(-3, 3)
+
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.top > SCREEN_HEIGHT + 10:
+            self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100, -40)
+            self.speedy = random.randrange(1, 8)
+
 
 # initialize pygame and create window
 pygame.init()
@@ -51,8 +71,14 @@ pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
+for i in range(8):
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
+
 # Game loop
 running = True
 while running:
