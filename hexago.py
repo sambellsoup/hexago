@@ -33,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join(img_folder, "tower_1.png")).convert()
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT-20)
+        self.rect.center = (SCREEN_WIDTH - 1260, SCREEN_HEIGHT / 2)
 
     def update(self):
         keystate = pygame.key.get_pressed()
@@ -55,18 +55,19 @@ class Mob(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         # Enemy spawns randomly across screen
-        self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
-        self.rect.y = random.randrange(-100, -40)
-        self.speedy = random.randrange(1, 8)
-        self.speedx = random.randrange(-3, 3)
+        self.rect.x = random.randrange(SCREEN_WIDTH + self.rect.width)
+        self.rect.y = random.randrange(SCREEN_HEIGHT)
+        self.speedy = random.randrange(-3, 3)
+        self.speedx = random.randrange(-8, -1)
 
     def update(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.top > SCREEN_HEIGHT + 10 or self.rect.left < -25 or self.rect.right > SCREEN_WIDTH + 20:
-            self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-100, -40)
-            self.speedy = random.randrange(1, 8)
+            self.rect.x = random.randrange(SCREEN_WIDTH)
+            self.rect.y = random.randrange(-720, 0)
+            self.speedy = random.randrange(-8, 1)
+            self.speedx = random.randrange(-3, 3)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -125,6 +126,7 @@ while running:
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
+
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, False)
     if hits:
