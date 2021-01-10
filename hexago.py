@@ -57,17 +57,19 @@ class Mob(pygame.sprite.Sprite):
         # Enemy spawns randomly across screen
         self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width, SCREEN_WIDTH)
         self.rect.y = random.randrange(SCREEN_HEIGHT)
-        # self.speedy = random.randrange(0)
-        self.speedx = random.randrange(-2, -1)
+        self.speedx = random.randrange(-8, -1)
+        self.speedy = random.randrange(-3, 3)
 
     def update(self):
         self.rect.x += self.speedx
-        # self.rect.y += self.speedy
-        if self.rect.top > SCREEN_HEIGHT + 10 or self.rect.left < -25 or self.rect.right > SCREEN_WIDTH + 20:
+        self.rect.y += self.speedy
+        if self.rect.right < 0 - 20 or self.rect.top < 0 - 20 or self.rect.bottom > SCREEN_HEIGHT + 20:
             self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width, SCREEN_WIDTH)
-            self.rect.y = random.randrange(-720, 0)
-            self.speedy = random.randrange(-1, 1)
-            self.speedx = random.randrange(-3, 3)
+            self.rect.y = random.randrange(SCREEN_HEIGHT)
+            # self.speedy = random.randrange(0)
+            self.speedx = random.randrange(-8, -1)
+            # self.speedy = random.randrange(-1, 1)
+            # self.speedx = random.randrange(-3, 3)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
