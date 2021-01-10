@@ -55,18 +55,18 @@ class Mob(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         # Enemy spawns randomly across screen
-        self.rect.x = random.randrange(SCREEN_WIDTH + self.rect.width)
+        self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width, SCREEN_WIDTH)
         self.rect.y = random.randrange(SCREEN_HEIGHT)
-        self.speedy = random.randrange(-3, 3)
-        self.speedx = random.randrange(-8, -1)
+        # self.speedy = random.randrange(0)
+        self.speedx = random.randrange(-2, -1)
 
     def update(self):
         self.rect.x += self.speedx
-        self.rect.y += self.speedy
+        # self.rect.y += self.speedy
         if self.rect.top > SCREEN_HEIGHT + 10 or self.rect.left < -25 or self.rect.right > SCREEN_WIDTH + 20:
-            self.rect.x = random.randrange(SCREEN_WIDTH)
+            self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width, SCREEN_WIDTH)
             self.rect.y = random.randrange(-720, 0)
-            self.speedy = random.randrange(-8, 1)
+            self.speedy = random.randrange(-1, 1)
             self.speedx = random.randrange(-3, 3)
 
 class Bullet(pygame.sprite.Sprite):
@@ -77,10 +77,10 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -10
+        # self.speedy = -10
 
     def update(self):
-        self.rect.y += self.speedy
+        # self.rect.y += self.speedy
         # kill if it moves off the top of the screen
         if self.rect.bottom < 0:
             self.kill()
@@ -129,8 +129,8 @@ while running:
 
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, False)
-    if hits:
-        running = False
+    # if hits:
+        # running = False
 
     # Draw / render
     screen.fill(BLACK)
