@@ -46,13 +46,13 @@ class Player(pygame.sprite.Sprite):
 
     def cast(self):
         now = pygame.time.get_ticks()
-        if now - self.last_shot > self.shoot_delay:
-            self.last_shot = now
-            mousex, mousey = pygame.mouse.get_pos()
-            # Describes spawn point of spell
-            spell = Spell(self.rect.centerx, self.rect.top)
-            all_sprites.add(spell)
-            spells.add(spell)
+        # if now - self.last_shot > self.shoot_delay:
+            # self.last_shot = now
+        mousex, mousey = pygame.mouse.get_pos()
+        # Describes spawn point of spell
+        spell = Spell(self.rect.centerx, self.rect.top)
+        all_sprites.add(spell)
+        spells.add(spell)
 
 
 class Mob(pygame.sprite.Sprite):
@@ -82,16 +82,16 @@ class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
-        self.image.set_colorkey(BLACK)
+        # self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         mousex, mousey = pygame.mouse.get_pos()
         self.rect.bottom = mousey
         self.rect.centerx = mousex
         # cast_sound.play()
 
-    def update(self):
+    # def update(self):
         # Delete after 2 secs
-        time.sleep(2)
+        # time.sleep(2)
 
 
 class Bullet(pygame.sprite.Sprite):
