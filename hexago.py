@@ -4,6 +4,7 @@
 import pygame
 import random
 import os
+import time
 
 # Size and Title of the screen
 SCREEN_TITLE = 'Hexago'
@@ -43,10 +44,16 @@ class Player(pygame.sprite.Sprite):
         # if self.rect.right > SCREEN_WIDTH:
             # self.rect.right = SCREEN_WIDTH
 
-    def shoot(self):
-        bullet = Bullet(self.rect.centerx, self.rect.top)
-        all_sprites.add(bullet)
-        bullets.add(bullet)
+    def cast(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_shot > self.shoot_delay:
+            self.last_shot = now
+            mousex, mousey = pygame.mouse.get_pos()
+            # Describes spawn point of spell
+            spell = Spell(self.rect.centerx, self.rect.top)
+            all_sprites.add(spell)
+            spells.add(spell)
+
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -70,6 +77,22 @@ class Mob(pygame.sprite.Sprite):
             self.speedx = random.randrange(-8, -1)
             # self.speedy = random.randrange(-1, 1)
             # self.speedx = random.randrange(-3, 3)
+
+class Spell(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        mousex, mousey = pygame.mouse.get_pos()
+        self.rect.bottom = mousey
+        self.rect.centerx = mousex
+        # cast_sound.play()
+
+    def update(self):
+        # Delete after 2 secs
+        time.sleep(2)
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -97,7 +120,8 @@ clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
-bullets = pygame.sprite.Group()
+# bullets = pygame.sprite.Group()
+spells = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 for i in range(8):
@@ -115,15 +139,14 @@ while running:
         # check for closing window
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.shoot()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            player.cast()
 
     # Update
     all_sprites.update()
 
-    # Check to see if a bullet hit a mob
-    hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
+    # Check to see if a spell hit a mob
+    hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     for hit in hits:
         m = Mob()
         all_sprites.add(m)
@@ -131,8 +154,8 @@ while running:
 
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, False)
-    # if hits:
-        # running = False
+    if hits:
+        running = False
 
     # Draw / render
     screen.fill(BLACK)
