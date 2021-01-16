@@ -27,11 +27,21 @@ TEAL = (0, 255, 255)
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 
+# initialize pygame and create window
+pygame.init()
+pygame.mixer.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Hexago")
+clock = pygame.time.Clock()
+
 class Player(pygame.sprite.Sprite):
     #sprite for the Player
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder, "tower_1.png")).convert()
+        # Normal size
+        self.image = player_img
+        # Example of scaling
+        # self.image = pygame.transform.scale(player_img, (50, 38))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH - 1260, SCREEN_HEIGHT / 2)
@@ -58,7 +68,7 @@ class Player(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
+        self.image = smalln_bad
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         # Enemy spawns randomly across screen
@@ -81,7 +91,7 @@ class Mob(pygame.sprite.Sprite):
 class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
+        self.image = spell_neutral
         # self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         mousex, mousey = pygame.mouse.get_pos()
@@ -110,13 +120,14 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+# Load all game graphices
+# background = pygame.image.load(os.path.join(img_folder, "file_name")).convert()
+# background_rect = background.get_rect()
+player_img = pygame.image.load(os.path.join(img_folder, "tower_1.png")).convert()
+smalln_bad = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
+spell_neutral = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
 
-# initialize pygame and create window
-pygame.init()
-pygame.mixer.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Hexago")
-clock = pygame.time.Clock()
+
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
