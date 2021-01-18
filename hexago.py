@@ -39,11 +39,13 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         # Normal size
-        self.image = player_img
+        # self.image = player_img
         # Example of scaling
-        # self.image = pygame.transform.scale(player_img, (50, 38))
+        self.image = pygame.transform.scale(player_img, (32, 32))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width * .5 / 2)
+        # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.center = (SCREEN_WIDTH - 1260, SCREEN_HEIGHT / 2)
 
     def update(self):
@@ -68,9 +70,12 @@ class Player(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = smalln_bad
+        # self.image = smalln_bad
+        self.image = pygame.transform.scale(smalln_bad, (32, 32))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width * .375 / 2)
+        # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         # Enemy spawns randomly across screen
         self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width, SCREEN_WIDTH)
         self.rect.y = random.randrange(SCREEN_HEIGHT)
@@ -92,7 +97,7 @@ class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = spell_neutral
-        # self.image.set_colorkey(WHITE)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         mousex, mousey = pygame.mouse.get_pos()
         self.rect.bottom = mousey
@@ -164,7 +169,7 @@ while running:
         mobs.add(m)
 
     # Check to see if mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False)
+    hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
     if hits:
         running = False
 
