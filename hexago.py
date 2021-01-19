@@ -71,8 +71,10 @@ class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         # self.image = smalln_bad
-        self.image = pygame.transform.scale(smalln_bad, (32, 32))
-        self.image.set_colorkey(BLACK)
+        # self.image_orig = pygame.transform.scale(smalln_bad, (32, 32))
+        self.image_orig = random.choice(enemy_images)
+        self.image_orig.set_colorkey(BLACK)
+        self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .375 / 2)
         # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
@@ -81,8 +83,25 @@ class Mob(pygame.sprite.Sprite):
         self.rect.y = random.randrange(SCREEN_HEIGHT)
         self.speedx = random.randrange(-8, -1)
         self.speedy = random.randrange(-3, 3)
+        # Setup animating sprite
+        self.rot = 0
+        self.rot_speed = random.randrange(-8, 8)
+        self.last_update = pygame.time.get_ticks()
+
+    def rotate(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 50:
+            self.last_update = now
+            self.rot = (self.rot + self.rot_speed) % 360
+            new_image = pygame.transform.rotate(self.image_orig, self.rot)
+            old_center = self.rect.center
+            self.image = new_image
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
+
 
     def update(self):
+        self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right < 0 - 20 or self.rect.top < 0 - 20 or self.rect.bottom > SCREEN_HEIGHT + 20:
@@ -131,6 +150,10 @@ class Bullet(pygame.sprite.Sprite):
 player_img = pygame.image.load(os.path.join(img_folder, "tower_1.png")).convert()
 smalln_bad = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
 spell_neutral = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
+enemy_images = []
+enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png']
+for img in enemy_list:
+    enemy_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
 
 
 
