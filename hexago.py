@@ -34,6 +34,14 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
 
+font_name = pygame.font.match_font('arial')
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
+
 class Player(pygame.sprite.Sprite):
     #sprite for the Player
     def __init__(self):
@@ -168,6 +176,8 @@ for i in range(8):
     all_sprites.add(m)
     mobs.add(m)
 
+score = 0
+
 # Game loop
 running = True
 while running:
@@ -187,6 +197,7 @@ while running:
     # Check to see if a spell hit a mob
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     for hit in hits:
+        score += 50
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
@@ -199,6 +210,7 @@ while running:
     # Draw / render
     screen.fill(BLACK)
     all_sprites.draw(screen)
+    draw_text(screen, "SCORE: " + str(score), 18, SCREEN_WIDTH / 2, 10)
     # *after* drawing everything, flip the display
     pygame.display.flip()
 
