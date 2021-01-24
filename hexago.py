@@ -26,9 +26,11 @@ TEAL = (0, 255, 255)
 # set up assets folders
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
+snd_folder = os.path.join(game_folder, "snd")
 
 # initialize pygame and create window
 pygame.init()
+# allows for sound
 pygame.mixer.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Hexago")
@@ -73,7 +75,7 @@ class Player(pygame.sprite.Sprite):
         spell = Spell(self.rect.centerx, self.rect.top)
         all_sprites.add(spell)
         spells.add(spell)
-
+        cast_sound.play()
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -163,7 +165,13 @@ enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png']
 for img in enemy_list:
     enemy_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
 
-
+# Load all game sounds
+cast_sound = pygame.mixer.Sound(os.path.join(snd_folder, "basic_cast.wav"))
+kill_sounds = []
+for snd in ['hit.wav', 'kill.wav']:
+    kill_sounds.append(pygame.mixer.Sound(os.path.join(snd_folder, snd)))
+pygame.mixer.music.load(os.path.join(snd_folder, 'hexago.wav'))
+pygame.mixer.music.set_volume(0.4)
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
@@ -178,6 +186,7 @@ for i in range(8):
 
 score = 0
 
+pygame.mixer.music.play(loops=-1)
 # Game loop
 running = True
 while running:
@@ -198,6 +207,7 @@ while running:
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     for hit in hits:
         score += 50
+        random.choice(kill_sounds).play()
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
