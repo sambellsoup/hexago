@@ -44,6 +44,22 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
+def newmob():
+    m = Mob()
+    all_sprites.add(m)
+    mobs.add(m)
+
+def draw_shield_bar(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct / 100) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
 class Player(pygame.sprite.Sprite):
     #sprite for the Player
     def __init__(self):
@@ -57,6 +73,7 @@ class Player(pygame.sprite.Sprite):
         self.radius = int(self.rect.width * .5 / 2)
         # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.center = (SCREEN_WIDTH - 1240, SCREEN_HEIGHT / 2)
+        self.shield = 100
 
     def update(self):
         keystate = pygame.key.get_pressed()
@@ -180,12 +197,11 @@ spells = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 for i in range(8):
-    m = Mob()
-    all_sprites.add(m)
-    mobs.add(m)
+    newmob()
 
 score = 0
 
+# Music repeats
 pygame.mixer.music.play(loops=-1)
 # Game loop
 running = True
@@ -208,19 +224,21 @@ while running:
     for hit in hits:
         score += 50
         random.choice(kill_sounds).play()
-        m = Mob()
-        all_sprites.add(m)
-        mobs.add(m)
+        newmob()
 
     # Check to see if mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
-    if hits:
-        running = False
+    hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
+    for hit in hits:
+        player.shield -= hit.radius * 2
+        newmob()
+        if player.shield <= 0:
+            running = False
 
     # Draw / render
     screen.fill(BLACK)
     all_sprites.draw(screen)
     draw_text(screen, "SCORE: " + str(score), 18, SCREEN_WIDTH / 2, 10)
+    draw_shield_bar(screen, 5, 5, player.shield)
     # *after* drawing everything, flip the display
     pygame.display.flip()
 
