@@ -92,14 +92,14 @@ class Player(pygame.sprite.Sprite):
     def cast(self):
         now = pygame.time.get_ticks()
         # Allows for auto cast if mouse button held down
-        # if now - self.last_cast > self.cast_delay:
-            # self.last_cast = now
-        mousex, mousey = pygame.mouse.get_pos()
-        # Describes spawn point of spell
-        spell = Spell(self.rect.centerx, self.rect.top)
-        all_sprites.add(spell)
-        spells.add(spell)
-        cast_sound.play()
+        if now - self.last_cast > self.cast_delay:
+            self.last_cast = now
+            mousex, mousey = pygame.mouse.get_pos()
+            # Describes spawn point of spell
+            spell = Spell(self.rect.centerx, self.rect.top)
+            all_sprites.add(spell)
+            spells.add(spell)
+            cast_sound.play()
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -178,6 +178,30 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, center, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.size = size
+        self.image = explosion_anim[self.size][0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(explosion_anim[self.size]):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = explosion_anim[self.size][self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+
 # Load all game graphices
 # background = pygame.image.load(os.path.join(img_folder, "file_name")).convert()
 # background_rect = background.get_rect()
@@ -188,6 +212,17 @@ enemy_images = []
 enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png']
 for img in enemy_list:
     enemy_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
+explosion_anim = {}
+explosion_anim['lg'] = []
+explosion_anim['sm'] = []
+for i in range(1, 4):
+    filename = 'death_{}.png'.format(i)
+    img = pygame.image.load(os.path.join(img_folder, filename)).convert()
+    img.set_colorkey(BLACK)
+    img_lg = pygame.transform.scale(img, (75, 75))
+    explosion_anim['lg'].append(img_lg)
+    img_sm = pygame.transform.scale(img, (32, 32))
+    explosion_anim['sm'].append(img_sm)
 
 # Load all game sounds
 cast_sound = pygame.mixer.Sound(os.path.join(snd_folder, "basic_cast.wav"))
@@ -220,6 +255,8 @@ while running:
         # check for closing window
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            player.cast()
 
     # Update
     all_sprites.update()
@@ -229,12 +266,16 @@ while running:
     for hit in hits:
         score += 50
         random.choice(kill_sounds).play()
+        expl = Explosion(hit.rect.center, 'sm')
+        all_sprites.add(expl)
         newmob()
 
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
     for hit in hits:
         player.shield -= hit.radius * 2
+        expl = Explosion(hit.rect.center, 'sm')
+        all_sprites.add(expl)
         newmob()
         if player.shield <= 0:
             running = False
