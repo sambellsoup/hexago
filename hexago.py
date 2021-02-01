@@ -74,6 +74,9 @@ class Player(pygame.sprite.Sprite):
         # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.center = (SCREEN_WIDTH - 1240, SCREEN_HEIGHT / 2)
         self.shield = 100
+        # Shoot delay for auto shoot
+        self.cast_delay = 250
+        self.last_cast = pygame.time.get_ticks()
 
     def update(self):
         keystate = pygame.key.get_pressed()
@@ -82,11 +85,15 @@ class Player(pygame.sprite.Sprite):
         # make border of screen wall
         # if self.rect.right > SCREEN_WIDTH:
             # self.rect.right = SCREEN_WIDTH
+        if keystate[pygame.MOUSEBUTTONDOWN]:
+            self.cast()
+
 
     def cast(self):
         now = pygame.time.get_ticks()
-        # if now - self.last_shot > self.shoot_delay:
-            # self.last_shot = now
+        # Allows for auto cast if mouse button held down
+        # if now - self.last_cast > self.cast_delay:
+            # self.last_cast = now
         mousex, mousey = pygame.mouse.get_pos()
         # Describes spawn point of spell
         spell = Spell(self.rect.centerx, self.rect.top)
@@ -213,8 +220,6 @@ while running:
         # check for closing window
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            player.cast()
 
     # Update
     all_sprites.update()
