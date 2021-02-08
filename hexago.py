@@ -211,7 +211,7 @@ class Pow(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = center
-        self.speedx = -10
+        self.speedx = -2
 
     def update(self):
         self.rect.x += self.speedx
@@ -343,7 +343,7 @@ while running:
         random.choice(kill_sounds).play()
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
-        if random.random() > 0.1:
+        if random.random() > 0.75:
             pow = Pow(hit.rect.center)
             all_sprites.add(pow)
             powerups.add(pow)
@@ -371,6 +371,21 @@ while running:
             player.shield = 100
             # running = False
 
+    # check to see if player hit a powerup
+    hits = pygame.sprite.spritecollide(player, powerups, True)
+    for hit in hits:
+        if hit.type == 'red':
+            player.shield += 20
+            if player.shield >= 100:
+                player.shield = 100
+        if hit.type == 'blue':
+            player.shield += 20
+            if player.shield >= 100:
+                player.shield = 100
+        if hit.type == 'yellow':
+            player.shield += 20
+            if player.shield >= 100:
+                player.shield = 100
 
     # if the player died and the explosion has finished playing
     if player.lives == 0 and not death_explosion.alive():
