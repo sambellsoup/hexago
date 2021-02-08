@@ -10,28 +10,32 @@ import time
 SCREEN_TITLE = 'Hexago'
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
+SCREEN_ORIGIN = 0
 FPS = 60
 
 # Colors according to the RGB codes
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
-BLUE =  (  0,   0, 255)
+BLUE  = (  0,   0, 255)
 GREEN = (  0, 255,   0)
-RED =   (255,   0,   0)
-PINK = (255, 0, 255)
-YELLOW = (255, 255, 0)
-PURPLE = (255, 0, 255)
-TEAL = (0, 255, 255)
+RED   = (255,   0,   0)
+PINK  = (255,   0, 255)
+YELLOW= (255, 255,   0)
+PURPLE= (255,   0, 255)
+TEAL  = (  0, 255, 255)
 
 # set up assets folders
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 snd_folder = os.path.join(game_folder, "snd")
 
-# initialize pygame and create window
+# initialize pygame
 pygame.init()
-# allows for sound
+
+# initialize sound
 pygame.mixer.init()
+
+# create window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
@@ -55,10 +59,17 @@ def draw_shield_bar(surf, x, y, pct):
     BAR_LENGTH = 100
     BAR_HEIGHT = 10
     fill = (pct / 100) * BAR_LENGTH
-    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    outline_rect = pygame.Rect(x, 550, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, 550, fill, BAR_HEIGHT)
     pygame.draw.rect(surf, GREEN, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
+def draw_lives(surf, x, y, lives, img):
+    for i in range(lives):
+        img_rect = img.get_rect()
+        img_rect.x = x + 30 * i
+        img_rect.y = 550
+        surf.blit(img, img_rect)
 
 class Player(pygame.sprite.Sprite):
     #sprite for the Player
@@ -72,13 +83,20 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .5 / 2)
         # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
-        self.rect.center = (SCREEN_WIDTH - 1240, SCREEN_HEIGHT / 2)
+        self.rect.center = (SCREEN_WIDTH - 1189, SCREEN_HEIGHT - 455)
         self.shield = 100
         # Shoot delay for auto shoot
         self.cast_delay = 250
         self.last_cast = pygame.time.get_ticks()
+        self.lives = 3
+        self.hidden = False
+        self.hide_timer = pygame.time.get_ticks()
 
     def update(self):
+        # unhide if hidden
+        if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
+            self.hidden = False
+            self.rect.center = self.rect.center = (SCREEN_WIDTH - 1189, SCREEN_HEIGHT - 455)
         keystate = pygame.key.get_pressed()
         # if keystate[pygame.<nameofkey>]:
             # self.<quality> = change
@@ -100,6 +118,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.add(spell)
             spells.add(spell)
             cast_sound.play()
+
+    def hide(self):
+        # hide the player temporarily
+        self.hidden = True
+        self.hide_timer = pygame.time.get_ticks()
+        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT + 200)
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -149,8 +173,9 @@ class Mob(pygame.sprite.Sprite):
 class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = spell_neutral
-        self.image.set_colorkey(BLACK)
+        self.image_orig = spell_images[0]
+        self.image_orig.set_colorkey(BLACK)
+        self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
         mousex, mousey = pygame.mouse.get_pos()
         self.rect.bottom = mousey
@@ -178,6 +203,22 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+class Pow(pygame.sprite.Sprite):
+    def __init__(self, center):
+        pygame.sprite.Sprite.__init__(self)
+        self.type = random.choice(['red', 'blue', 'yellow'])
+        self.image = powerup_images[self.type]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.speedx = -10
+
+    def update(self):
+        self.rect.x += self.speedx
+        # kill if it moves off the top of the screen
+        if self.rect.right < SCREEN_ORIGIN:
+            self.kill()
+
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, center, size):
         pygame.sprite.Sprite.__init__(self)
@@ -187,7 +228,7 @@ class Explosion(pygame.sprite.Sprite):
         self.rect.center = center
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 50
+        self.frame_rate = 75
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -203,18 +244,32 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect.center = center
 
 # Load all game graphices
-# background = pygame.image.load(os.path.join(img_folder, "file_name")).convert()
-# background_rect = background.get_rect()
+background = pygame.image.load(os.path.join(img_folder, "background.png")).convert()
+background = pygame.transform.scale(background, (1280,720))
+background_rect = background.get_rect()
+
 player_img = pygame.image.load(os.path.join(img_folder, "tower_n0.png")).convert()
+player_mini_img = pygame.transform.scale(player_img, (25, 19))
+player_mini_img.set_colorkey(BLACK)
+
 smalln_bad = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
+
+spell_images = []
+spell_list = ['white_burst.png', 'blue_burst.png', 'red_burst.png', 'yellow_burst.png']
+for img in spell_list:
+    spell_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
 spell_neutral = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
+
 enemy_images = []
-enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png']
+enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png', 'blue_big_bad.png',
+'blue_small_bad.png', 'red_big_bad.png', 'red_small_bad.png', 'yellow_big_bad.png',
+'yellow_small_bad.png']
 for img in enemy_list:
     enemy_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
 explosion_anim = {}
 explosion_anim['lg'] = []
 explosion_anim['sm'] = []
+
 for i in range(1, 4):
     filename = 'death_{}.png'.format(i)
     img = pygame.image.load(os.path.join(img_folder, filename)).convert()
@@ -224,11 +279,27 @@ for i in range(1, 4):
     img_sm = pygame.transform.scale(img, (32, 32))
     explosion_anim['sm'].append(img_sm)
 
+explosion_anim['player'] = []
+for i in range(1, 6):
+    filename = 'boom__{}.jpg'.format(i)
+    img = pygame.image.load(os.path.join(img_folder, filename)).convert()
+    img.set_colorkey(BLACK)
+    # explosion_anim['player'].append(img)
+    player_death_img = pygame.transform.scale(img, (64, 64))
+    explosion_anim['player'].append(player_death_img)
+powerup_images = {}
+powerup_images['red'] = pygame.image.load(os.path.join(img_folder, 'red_boom.png')).convert()
+powerup_images['blue'] = pygame.image.load(os.path.join(img_folder, 'blue_boom.png')).convert()
+powerup_images['yellow'] = pygame.image.load(os.path.join(img_folder, 'yellow_boom.png')).convert()
+
+
+
 # Load all game sounds
 cast_sound = pygame.mixer.Sound(os.path.join(snd_folder, "basic_cast.wav"))
 kill_sounds = []
 for snd in ['hit.wav', 'kill.wav']:
     kill_sounds.append(pygame.mixer.Sound(os.path.join(snd_folder, snd)))
+player_die_sound = pygame.mixer.Sound(os.path.join(snd_folder, 'quake.wav'))
 pygame.mixer.music.load(os.path.join(snd_folder, 'hexago.wav'))
 pygame.mixer.music.set_volume(0.4)
 
@@ -236,8 +307,12 @@ all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 # bullets = pygame.sprite.Group()
 spells = pygame.sprite.Group()
+powerups = pygame.sprite.Group()
+
 player = Player()
 all_sprites.add(player)
+
+
 for i in range(8):
     newmob()
 
@@ -268,23 +343,50 @@ while running:
         random.choice(kill_sounds).play()
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
+        if random.random() > 0.1:
+            pow = Pow(hit.rect.center)
+            all_sprites.add(pow)
+            powerups.add(pow)
         newmob()
 
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
     for hit in hits:
+        # strong mobs
+        # player.shield -= hit.radius * 100
+
+        # mobs strength based on size
         player.shield -= hit.radius * 2
+
         expl = Explosion(hit.rect.center, 'sm')
+        random.choice(kill_sounds).play()
         all_sprites.add(expl)
         newmob()
         if player.shield <= 0:
-            running = False
+            player_die_sound.play()
+            death_explosion = Explosion(player.rect.center, 'player')
+            all_sprites.add(death_explosion)
+            player.hide()
+            player.lives -= 1
+            player.shield = 100
+            # running = False
+
+
+    # if the player died and the explosion has finished playing
+    if player.lives == 0 and not death_explosion.alive():
+        running = False
+
+    # Check to see if mob hits player block
+
+
 
     # Draw / render
     screen.fill(BLACK)
+    screen.blit(background, background_rect)
     all_sprites.draw(screen)
-    draw_text(screen, "SCORE: " + str(score), 18, SCREEN_WIDTH / 2, 10)
+    draw_text(screen, "SCORE: " + str(score), 18, SCREEN_WIDTH / 2, 550)
     draw_shield_bar(screen, 5, 5, player.shield)
+    draw_lives(screen, SCREEN_WIDTH - 100, 5, player.lives, player_mini_img)
     # *after* drawing everything, flip the display
     pygame.display.flip()
 
