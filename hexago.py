@@ -173,7 +173,7 @@ class Mob(pygame.sprite.Sprite):
 class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image_orig = spell_images[0]
+        self.image_orig = spell_white
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
@@ -254,11 +254,12 @@ player_mini_img.set_colorkey(BLACK)
 
 smalln_bad = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
 
-spell_images = []
-spell_list = ['white_burst.png', 'blue_burst.png', 'red_burst.png', 'yellow_burst.png']
-for img in spell_list:
-    spell_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
-spell_neutral = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
+# spell_images = []
+# spell_list = ['white_burst.png', 'red_burst.png', 'blue_burst.png', 'yellow_burst.png']
+# for img in spell_list:
+    # spell_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
+spell_white = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
+spell_red = pygame.image.load(os.path.join(img_folder, 'red_boom.png')).convert()
 
 enemy_images = []
 enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png', 'blue_big_bad.png',
@@ -347,6 +348,10 @@ while running:
             pow = Pow(hit.rect.center)
             all_sprites.add(pow)
             powerups.add(pow)
+            print(pow.type)
+            if pow.type == 'red':
+                print('success')
+                # spell.image_orig = spell_red
         newmob()
 
     # Check to see if mob hit the player
