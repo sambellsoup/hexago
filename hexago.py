@@ -91,6 +91,7 @@ class Player(pygame.sprite.Sprite):
         self.lives = 3
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
+        self.mana = 0
 
     def update(self):
         # unhide if hidden
@@ -106,15 +107,23 @@ class Player(pygame.sprite.Sprite):
         if keystate[pygame.MOUSEBUTTONDOWN]:
             self.cast()
 
-
     def cast(self):
         now = pygame.time.get_ticks()
         # Allows for auto cast if mouse button held down
         if now - self.last_cast > self.cast_delay:
             self.last_cast = now
+        if self.mana == 0:
             mousex, mousey = pygame.mouse.get_pos()
             # Describes spawn point of spell
             spell = Spell(self.rect.centerx, self.rect.top)
+            all_sprites.add(spell)
+            spells.add(spell)
+            cast_sound.play()
+        if self.mana >= 1:
+            mousex, mousey = pygame.mouse.get_pos()
+            # Describes spawn point of spell
+            spell = Spell(self.rect.centerx, self.rect.top)
+            spell.image_orig = spell_red
             all_sprites.add(spell)
             spells.add(spell)
             cast_sound.play()
@@ -173,7 +182,10 @@ class Mob(pygame.sprite.Sprite):
 class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image_orig = spell_white
+        if player.mana  == 0:
+            self.image_orig = spell_white
+        elif player.mana >= 1:
+            self.image_orig = spell_red
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
@@ -333,10 +345,14 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.cast()
+            if player.mana > 0:
+                player.mana -= 1
+
 
     # Update
     all_sprites.update()
 
+    mana = 0
     # Check to see if a spell hit a mob
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     for hit in hits:
@@ -350,7 +366,12 @@ while running:
             powerups.add(pow)
             print(pow.type)
             if pow.type == 'red':
-                print('success')
+                player.mana += 1
+                print('mana equals ' + str(player.mana))
+                if player.mana > 0:
+                    player.image_orig = spell_red
+                if player.mana == 0:
+                    player.image_orig = spell_white
                 # spell.image_orig = spell_red
         newmob()
 
