@@ -92,6 +92,9 @@ class Player(pygame.sprite.Sprite):
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
         self.mana = 0
+        self.red_mana = 0
+        self.blue_mana = 0
+        self.yellow_mana = 0
 
     def update(self):
         # unhide if hidden
