@@ -64,6 +64,17 @@ def draw_shield_bar(surf, x, y, pct):
     pygame.draw.rect(surf, GREEN, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
+def draw_red_mana_bar(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct/100) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, 575, BAR_LENGTH, BAR_HEIGHT)
+    # fill_rect = pygame.Rect(x, 575, fill, BAR_HEIGHT)
+    # pygame.draw.rect(surf, RED, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
 def draw_lives(surf, x, y, lives, img):
     for i in range(lives):
         img_rect = img.get_rect()
@@ -349,7 +360,7 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.cast()
             if player.mana > 0:
-                player.mana -= 1
+                player.mana -= 20
 
 
     # Update
@@ -369,12 +380,26 @@ while running:
             powerups.add(pow)
             print(pow.type)
             if pow.type == 'red':
-                player.mana += 1
+                player.mana += 20
+                player.red_mana += 20
                 print('mana equals ' + str(player.mana))
-                if player.mana > 0:
+                if player.red_mana > 0:
                     player.image_orig = spell_red
-                if player.mana == 0:
-                    player.image_orig = spell_white
+            if pow.type == 'blue':
+                player.mana += 20
+                player.blue_mana += 20
+                # print('mana equals ' + str(player.mana))
+                # if player.blue_mana > 0:
+                    # player.image_orig  = spell_blue
+            if pow.type == 'yellow':
+                player.mana += 20
+                player.yellow_mana += 20
+                # print('mana eqauls ' + str(player.mana))
+                # if player.yellow_mana > 0:
+                    # player.image_orig = spell_yellow
+
+        if player.mana == 0:
+            player.image_orig = spell_white
                 # spell.image_orig = spell_red
         newmob()
 
@@ -430,6 +455,7 @@ while running:
     all_sprites.draw(screen)
     draw_text(screen, "SCORE: " + str(score), 18, SCREEN_WIDTH / 2, 550)
     draw_shield_bar(screen, 5, 5, player.shield)
+    draw_red_mana_bar(screen, 5, 5, player.red_mana)
     draw_lives(screen, SCREEN_WIDTH - 100, 5, player.lives, player_mini_img)
     # *after* drawing everything, flip the display
     pygame.display.flip()
