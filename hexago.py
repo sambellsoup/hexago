@@ -70,11 +70,12 @@ def draw_red_mana_bar(surf, x, y, pct):
     fill = (pct/100) * BAR_LENGTH
     outline_rect = pygame.Rect(x, 575, BAR_LENGTH, BAR_HEIGHT)
     fill_rect = pygame.Rect(x, 575, fill, BAR_HEIGHT)
-    pygame.draw.rect(surf, WHITE, outline_rect, 2)
     pygame.draw.rect(surf, RED, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
     if pct <= 0:
         pct = 0
         pygame.draw.rect(surf, BLACK, fill_rect)
+
 
 
 
@@ -105,7 +106,7 @@ class Player(pygame.sprite.Sprite):
         self.lives = 3
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
-        self.red_mana =100
+        self.red_mana = 0
         self.blue_mana = 0
         self.yellow_mana = 0
 
