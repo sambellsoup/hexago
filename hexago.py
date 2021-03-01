@@ -65,15 +65,18 @@ def draw_shield_bar(surf, x, y, pct):
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
 def draw_red_mana_bar(surf, x, y, pct):
-    if pct < 0:
-        pct = 0
     BAR_LENGTH = 100
     BAR_HEIGHT = 10
     fill = (pct/100) * BAR_LENGTH
     outline_rect = pygame.Rect(x, 575, BAR_LENGTH, BAR_HEIGHT)
-    # fill_rect = pygame.Rect(x, 575, fill, BAR_HEIGHT)
-    # pygame.draw.rect(surf, RED, fill_rect)
+    fill_rect = pygame.Rect(x, 575, fill, BAR_HEIGHT)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
+    pygame.draw.rect(surf, RED, fill_rect)
+    if pct <= 0:
+        pct = 0
+        pygame.draw.rect(surf, BLACK, fill_rect)
+
+
 
 def draw_lives(surf, x, y, lives, img):
     for i in range(lives):
@@ -102,8 +105,7 @@ class Player(pygame.sprite.Sprite):
         self.lives = 3
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
-        self.mana = 0
-        self.red_mana = 0
+        self.red_mana =100
         self.blue_mana = 0
         self.yellow_mana = 0
 
@@ -126,14 +128,13 @@ class Player(pygame.sprite.Sprite):
         # Allows for auto cast if mouse button held down
         if now - self.last_cast > self.cast_delay:
             self.last_cast = now
-        if self.mana == 0:
-            mousex, mousey = pygame.mouse.get_pos()
-            # Describes spawn point of spell
-            spell = Spell(self.rect.centerx, self.rect.top)
-            all_sprites.add(spell)
-            spells.add(spell)
-            cast_sound.play()
-        if self.mana >= 1:
+        mousex, mousey = pygame.mouse.get_pos()
+        # Describes spawn point of spell
+        spell = Spell(self.rect.centerx, self.rect.top)
+        all_sprites.add(spell)
+        spells.add(spell)
+        cast_sound.play()
+        if self.red_mana >= 1:
             mousex, mousey = pygame.mouse.get_pos()
             # Describes spawn point of spell
             spell = Spell(self.rect.centerx, self.rect.top)
@@ -196,9 +197,8 @@ class Mob(pygame.sprite.Sprite):
 class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        if player.mana  == 0:
-            self.image_orig = spell_white
-        elif player.mana >= 1:
+        self.image_orig = spell_white
+        if player.red_mana >= 1:
             self.image_orig = spell_red
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
@@ -359,14 +359,13 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.cast()
-            if player.mana > 0:
-                player.mana -= 20
+            if player.red_mana > 0:
+                player.red_mana -= 5
 
 
     # Update
     all_sprites.update()
 
-    mana = 0
     # Check to see if a spell hit a mob
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     for hit in hits:
@@ -380,25 +379,22 @@ while running:
             powerups.add(pow)
             print(pow.type)
             if pow.type == 'red':
-                player.mana += 20
                 player.red_mana += 20
-                print('mana equals ' + str(player.mana))
+                print('red mana equals ' + str(player.red_mana))
                 if player.red_mana > 0:
                     player.image_orig = spell_red
             if pow.type == 'blue':
-                player.mana += 20
                 player.blue_mana += 20
                 # print('mana equals ' + str(player.mana))
                 # if player.blue_mana > 0:
                     # player.image_orig  = spell_blue
             if pow.type == 'yellow':
-                player.mana += 20
                 player.yellow_mana += 20
                 # print('mana eqauls ' + str(player.mana))
                 # if player.yellow_mana > 0:
                     # player.image_orig = spell_yellow
 
-        if player.mana == 0:
+        if player.red_mana == 0 and player.blue_mana == 0 and player.yellow_mana == 0:
             player.image_orig = spell_white
                 # spell.image_orig = spell_red
         newmob()
@@ -426,20 +422,20 @@ while running:
             # running = False
 
     # check to see if player hit a powerup
-    hits = pygame.sprite.spritecollide(player, powerups, True)
-    for hit in hits:
-        if hit.type == 'red':
-            player.shield += 20
-            if player.shield >= 100:
-                player.shield = 100
-        if hit.type == 'blue':
-            player.shield += 20
-            if player.shield >= 100:
-                player.shield = 100
-        if hit.type == 'yellow':
-            player.shield += 20
-            if player.shield >= 100:
-                player.shield = 100
+    # hits = pygame.sprite.spritecollide(player, powerups, True)
+    # for hit in hits:
+        # if hit.type == 'red':
+        # player.shield += 20
+            # if player.shield >= 100:
+                # player.shield = 100
+        # if hit.type == 'blue':
+            # player.shield += 20
+            # if player.shield >= 100:
+                # player.shield = 100
+        # if hit.type == 'yellow':
+            # player.shield += 20
+            # if player.shield >= 100:
+                # player.shield = 100
 
     # if the player died and the explosion has finished playing
     if player.lives == 0 and not death_explosion.alive():
