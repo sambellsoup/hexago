@@ -39,8 +39,10 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Hexago")
 clock = pygame.time.Clock()
-
 font_name = pygame.font.match_font('arial')
+
+loaded = []
+
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, WHITE)
@@ -65,6 +67,8 @@ def draw_shield_bar(surf, x, y, pct):
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
 def draw_red_mana_bar(surf, x, y, pct):
+    if pct > 100:
+        pct = 100
     BAR_LENGTH = 100
     BAR_HEIGHT = 10
     fill = (pct/100) * BAR_LENGTH
@@ -76,7 +80,33 @@ def draw_red_mana_bar(surf, x, y, pct):
         pct = 0
         pygame.draw.rect(surf, BLACK, fill_rect)
 
+def draw_yellow_mana_bar(surf, x, y, pct):
+    if pct > 100:
+        pct = 100
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct/100) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, 600, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, 600, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, YELLOW, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+    if pct <= 0:
+        pct = 0
+        pygame.draw.rect(surf, BLACK, fill_rect)
 
+def draw_blue_mana_bar(surf, x, y, pct):
+    if pct > 100:
+        pct = 100
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct/100) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, 625, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, 625, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, BLUE, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+    if pct <= 0:
+        pct = 0
+        pygame.draw.rect(surf, BLACK, fill_rect)
 
 
 def draw_lives(surf, x, y, lives, img):
@@ -135,11 +165,27 @@ class Player(pygame.sprite.Sprite):
         all_sprites.add(spell)
         spells.add(spell)
         cast_sound.play()
-        if self.red_mana >= 1:
+        if self.red_mana >= 1 and loaded == ['red']:
             mousex, mousey = pygame.mouse.get_pos()
             # Describes spawn point of spell
             spell = Spell(self.rect.centerx, self.rect.top)
             spell.image_orig = spell_red
+            all_sprites.add(spell)
+            spells.add(spell)
+            cast_sound.play()
+        if self.yellow_mana >= 1 and loaded == ['yellow']:
+            mousex, mousey = pygame.mouse.get_pos()
+            # Describes spawn point of spell
+            spell = Spell(self.rect.centerx, self.rect.top)
+            spell.image_orig = spell_yellow
+            all_sprites.add(spell)
+            spells.add(spell)
+            cast_sound.play()
+        if self.blue_mana >= 1 and loaded == ['blue']:
+            mousex, mousey = pygame.mouse.get_pos()
+            # Describes spawn point of spell
+            spell = Spell(self.rect.centerx, self.rect.top)
+            spell.image_orig = spell_blue
             all_sprites.add(spell)
             spells.add(spell)
             cast_sound.play()
@@ -199,8 +245,12 @@ class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image_orig = spell_white
-        if player.red_mana >= 1:
+        if player.red_mana >= 1 and loaded == ['red']:
             self.image_orig = spell_red
+        if player.yellow_mana >= 1 and loaded == ['yellow']:
+            self.image_orig = spell_yellow
+        if player.blue_mana >= 1 and loaded == ['blue']:
+            self.image_orig = spell_blue
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
@@ -287,6 +337,8 @@ smalln_bad = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
     # spell_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
 spell_white = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
 spell_red = pygame.image.load(os.path.join(img_folder, 'red_boom.png')).convert()
+spell_yellow = pygame.image.load(os.path.join(img_folder, 'yellow_boom.png')).convert()
+spell_blue = pygame.image.load(os.path.join(img_folder, 'blue_boom.png')).convert()
 
 enemy_images = []
 enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png', 'blue_big_bad.png',
@@ -360,8 +412,25 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.cast()
-            if player.red_mana > 0:
+            if player.red_mana > 0 and loaded == ['red']:
                 player.red_mana -= 5
+                loaded = []
+            if player.yellow_mana > 0 and loaded == ['yellow']:
+                player.yellow_mana -= 5
+                loaded = []
+            if player.blue_mana > 0 and loaded == ['blue']:
+                player.blue_mana -= 5
+                loaded = []
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                print("red loaded")
+                loaded = ['red']
+            if event.key == pygame.K_2:
+                print("yellow loaded")
+                loaded = ['yellow']
+            if event.key == pygame.K_3:
+                print("blue loaded")
+                loaded = ['blue']
 
 
     # Update
@@ -382,18 +451,18 @@ while running:
             if pow.type == 'red':
                 player.red_mana += 20
                 print('red mana equals ' + str(player.red_mana))
-                if player.red_mana > 0:
+                if player.red_mana > 0 and loaded == ['red']:
                     player.image_orig = spell_red
-            if pow.type == 'blue':
-                player.blue_mana += 20
-                # print('mana equals ' + str(player.mana))
-                # if player.blue_mana > 0:
-                    # player.image_orig  = spell_blue
             if pow.type == 'yellow':
                 player.yellow_mana += 20
-                # print('mana eqauls ' + str(player.mana))
-                # if player.yellow_mana > 0:
-                    # player.image_orig = spell_yellow
+                print('yellow mana equals ' + str(player.yellow_mana))
+                if player.yellow_mana > 0 and loaded == ['yellow']:
+                    player.image_orig  = spell_yellow
+            if pow.type == 'blue':
+                player.blue_mana += 20
+                print('blue mana eqauls ' + str(player.blue_mana))
+                if player.blue_mana > 0 and loaded == ['blue']:
+                    player.image_orig = spell_blue
 
         if player.red_mana == 0 and player.blue_mana == 0 and player.yellow_mana == 0:
             player.image_orig = spell_white
@@ -453,6 +522,8 @@ while running:
     draw_text(screen, "SCORE: " + str(score), 18, SCREEN_WIDTH / 2, 550)
     draw_shield_bar(screen, 5, 5, player.shield)
     draw_red_mana_bar(screen, 5, 5, player.red_mana)
+    draw_yellow_mana_bar(screen, 5, 5, player.yellow_mana)
+    draw_blue_mana_bar(screen, 5, 5, player.blue_mana)
     draw_lives(screen, SCREEN_WIDTH - 100, 5, player.lives, player_mini_img)
     # *after* drawing everything, flip the display
     pygame.display.flip()
