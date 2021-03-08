@@ -216,6 +216,7 @@ class Mob(pygame.sprite.Sprite):
         self.rot = 0
         self.rot_speed = random.randrange(-8, 8)
         self.last_update = pygame.time.get_ticks()
+        self.health = 10
 
     def rotate(self):
         now = pygame.time.get_ticks()
@@ -335,10 +336,10 @@ smalln_bad = pygame.image.load(os.path.join(img_folder, "badn_1.png")).convert()
 # spell_list = ['white_burst.png', 'red_burst.png', 'blue_burst.png', 'yellow_burst.png']
 # for img in spell_list:
     # spell_images.append(pygame.image.load(os.path.join(img_folder, img)).convert())
-spell_white = pygame.image.load(os.path.join(img_folder, "white_boom.png")).convert()
-spell_red = pygame.image.load(os.path.join(img_folder, 'red_boom.png')).convert()
-spell_yellow = pygame.image.load(os.path.join(img_folder, 'yellow_boom.png')).convert()
-spell_blue = pygame.image.load(os.path.join(img_folder, 'blue_boom.png')).convert()
+spell_white = pygame.image.load(os.path.join(img_folder, "white_burst.png")).convert()
+spell_red = pygame.image.load(os.path.join(img_folder, 'red_burst.png')).convert()
+spell_yellow = pygame.image.load(os.path.join(img_folder, 'yellow_burst.png')).convert()
+spell_blue = pygame.image.load(os.path.join(img_folder, 'blue_burst.png')).convert()
 
 enemy_images = []
 enemy_list = ['badn_1.png', 'badn_2.png', 'badn_3.png', 'blue_big_bad.png',
@@ -438,36 +439,45 @@ while running:
 
     # Check to see if a spell hit a mob
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
+    mob = Mob()
     for hit in hits:
-        score += 50
-        random.choice(kill_sounds).play()
-        expl = Explosion(hit.rect.center, 'sm')
-        all_sprites.add(expl)
-        if random.random() > 0.75:
-            pow = Pow(hit.rect.center)
-            all_sprites.add(pow)
-            powerups.add(pow)
-            print(pow.type)
-            if pow.type == 'red':
-                player.red_mana += 20
-                print('red mana equals ' + str(player.red_mana))
-                if player.red_mana > 0 and loaded == ['red']:
-                    player.image_orig = spell_red
-            if pow.type == 'yellow':
-                player.yellow_mana += 20
-                print('yellow mana equals ' + str(player.yellow_mana))
-                if player.yellow_mana > 0 and loaded == ['yellow']:
-                    player.image_orig  = spell_yellow
-            if pow.type == 'blue':
-                player.blue_mana += 20
-                print('blue mana eqauls ' + str(player.blue_mana))
-                if player.blue_mana > 0 and loaded == ['blue']:
-                    player.image_orig = spell_blue
+        mob.health -= hit.radius * 2
+        # if player.image_orig == spell_red:
+            # mob.health -= hit.radius * 2 + 10
+            # print("red powerup")
+
+        print("enemy health = " + str(mob.health))
+        if mob.health <= 0:
+            score += 50
+            random.choice(kill_sounds).play()
+            expl = Explosion(hit.rect.center, 'sm')
+            all_sprites.add(expl)
+            newmob()
+            if random.random() > 0.75:
+                pow = Pow(hit.rect.center)
+                all_sprites.add(pow)
+                powerups.add(pow)
+                print(pow.type)
+                if pow.type == 'red':
+                    player.red_mana += 20
+                    print('red mana equals ' + str(player.red_mana))
+                    if player.red_mana > 0 and loaded == ['red']:
+                        player.image_orig = spell_red
+                if pow.type == 'yellow':
+                    player.yellow_mana += 20
+                    print('yellow mana equals ' + str(player.yellow_mana))
+                    if player.yellow_mana > 0 and loaded == ['yellow']:
+                        player.image_orig  = spell_yellow
+                if pow.type == 'blue':
+                    player.blue_mana += 20
+                    print('blue mana eqauls ' + str(player.blue_mana))
+                    if player.blue_mana > 0 and loaded == ['blue']:
+                        player.image_orig = spell_blue
 
         if player.red_mana == 0 and player.blue_mana == 0 and player.yellow_mana == 0:
             player.image_orig = spell_white
                 # spell.image_orig = spell_red
-        newmob()
+
 
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
