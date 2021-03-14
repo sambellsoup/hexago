@@ -216,7 +216,7 @@ class Mob(pygame.sprite.Sprite):
         self.rot = 0
         self.rot_speed = random.randrange(-8, 8)
         self.last_update = pygame.time.get_ticks()
-        self.health = 10
+        self.health = 1 * self.radius
 
     def rotate(self):
         now = pygame.time.get_ticks()
@@ -234,7 +234,7 @@ class Mob(pygame.sprite.Sprite):
         self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        if self.rect.right < 0 - 20 or self.rect.top < 0 - 20 or self.rect.bottom > SCREEN_HEIGHT + 20:
+        if self.rect.right < 0 - 20 or self.rect.top < 0 - 20 or self.rect.bottom > 550:
             self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width, SCREEN_WIDTH)
             self.rect.y = random.randrange(SCREEN_HEIGHT)
             # self.speedy = random.randrange(0)
@@ -246,12 +246,16 @@ class Spell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image_orig = spell_white
+        self.type = spell_white
         if player.red_mana >= 1 and loaded == ['red']:
             self.image_orig = spell_red
+            self.type = spell_red
         if player.yellow_mana >= 1 and loaded == ['yellow']:
             self.image_orig = spell_yellow
+            self.type = spell_yellow
         if player.blue_mana >= 1 and loaded == ['blue']:
             self.image_orig = spell_blue
+            self.type = spell_blue
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
@@ -391,6 +395,8 @@ spells = pygame.sprite.Group()
 powerups = pygame.sprite.Group()
 
 player = Player()
+mousex, mousey = pygame.mouse.get_pos()
+spell = Spell(mousex, mousey)
 all_sprites.add(player)
 
 
@@ -441,12 +447,15 @@ while running:
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
     mob = Mob()
     for hit in hits:
-        mob.health -= hit.radius * 2
+        mob.health -= hit.radius * 200
+        if spell.image_orig == spell_red:
+            mob.health -= hit.radius * 4
+
         # if player.image_orig == spell_red:
             # mob.health -= hit.radius * 2 + 10
             # print("red powerup")
 
-        print("enemy health = " + str(mob.health))
+        # print("enemy health = " + str(mob.health))
         if mob.health <= 0:
             score += 50
             random.choice(kill_sounds).play()
@@ -461,18 +470,18 @@ while running:
                 if pow.type == 'red':
                     player.red_mana += 20
                     print('red mana equals ' + str(player.red_mana))
-                    if player.red_mana > 0 and loaded == ['red']:
-                        player.image_orig = spell_red
+                    # if player.red_mana > 0 and loaded == ['red']:
+                        # player.image_orig = spell_red
                 if pow.type == 'yellow':
                     player.yellow_mana += 20
                     print('yellow mana equals ' + str(player.yellow_mana))
-                    if player.yellow_mana > 0 and loaded == ['yellow']:
-                        player.image_orig  = spell_yellow
+                    # if player.yellow_mana > 0 and loaded == ['yellow']:
+                        # player.image_orig  = spell_yellow
                 if pow.type == 'blue':
                     player.blue_mana += 20
                     print('blue mana eqauls ' + str(player.blue_mana))
-                    if player.blue_mana > 0 and loaded == ['blue']:
-                        player.image_orig = spell_blue
+                    # if player.blue_mana > 0 and loaded == ['blue']:
+                        # player.image_orig = spell_blue
 
         if player.red_mana == 0 and player.blue_mana == 0 and player.yellow_mana == 0:
             player.image_orig = spell_white
