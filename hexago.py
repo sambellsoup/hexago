@@ -133,7 +133,7 @@ class Player(pygame.sprite.Sprite):
         # Shoot delay for auto shoot
         self.cast_delay = 250
         self.last_cast = pygame.time.get_ticks()
-        self.lives = 3
+        self.lives = 1
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
         self.red_mana = 0
@@ -381,6 +381,10 @@ powerup_images['yellow'] = pygame.image.load(os.path.join(img_folder, 'yellow_bo
 
 # Load all game sounds
 cast_sound = pygame.mixer.Sound(os.path.join(snd_folder, "basic_cast.wav"))
+mana_sound = pygame.mixer.Sound(os.path.join(snd_folder, "mana.wav"))
+ember_sound = pygame.mixer.Sound(os.path.join(snd_folder, "ember.wav"))
+chill_sound = pygame.mixer.Sound(os.path.join(snd_folder, "chill.wav"))
+shock_sound = pygame.mixer.Sound(os.path.join(snd_folder, "shock.wav"))
 kill_sounds = []
 for snd in ['hit.wav', 'kill.wav']:
     kill_sounds.append(pygame.mixer.Sound(os.path.join(snd_folder, snd)))
@@ -420,13 +424,16 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.cast()
             if player.red_mana > 0 and loaded == ['red']:
-                player.red_mana -= 5
+                player.red_mana -= 10
+                ember_sound.play()
                 loaded = []
             if player.yellow_mana > 0 and loaded == ['yellow']:
-                player.yellow_mana -= 5
+                player.yellow_mana -= 10
+                shock_sound.play()
                 loaded = []
             if player.blue_mana > 0 and loaded == ['blue']:
-                player.blue_mana -= 5
+                player.blue_mana -= 10
+                chill_sound.play()
                 loaded = []
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
@@ -445,24 +452,23 @@ while running:
 
     # Check to see if a spell hit a mob
     hits = pygame.sprite.groupcollide(mobs, spells, True, True)
+    spell = Spell(player.rect.centerx, player.rect.top)
     mob = Mob()
     for hit in hits:
         mob.health -= hit.radius * 200
         if spell.image_orig == spell_red:
+            print('red hit')
             mob.health -= hit.radius * 4
 
-        # if player.image_orig == spell_red:
-            # mob.health -= hit.radius * 2 + 10
-            # print("red powerup")
-
-        # print("enemy health = " + str(mob.health))
         if mob.health <= 0:
+            mob.health = 0
             score += 50
             random.choice(kill_sounds).play()
             expl = Explosion(hit.rect.center, 'sm')
             all_sprites.add(expl)
             newmob()
             if random.random() > 0.75:
+                mana_sound.play()
                 pow = Pow(hit.rect.center)
                 all_sprites.add(pow)
                 powerups.add(pow)
@@ -470,18 +476,12 @@ while running:
                 if pow.type == 'red':
                     player.red_mana += 20
                     print('red mana equals ' + str(player.red_mana))
-                    # if player.red_mana > 0 and loaded == ['red']:
-                        # player.image_orig = spell_red
                 if pow.type == 'yellow':
                     player.yellow_mana += 20
                     print('yellow mana equals ' + str(player.yellow_mana))
-                    # if player.yellow_mana > 0 and loaded == ['yellow']:
-                        # player.image_orig  = spell_yellow
                 if pow.type == 'blue':
                     player.blue_mana += 20
                     print('blue mana eqauls ' + str(player.blue_mana))
-                    # if player.blue_mana > 0 and loaded == ['blue']:
-                        # player.image_orig = spell_blue
 
         if player.red_mana == 0 and player.blue_mana == 0 and player.yellow_mana == 0:
             player.image_orig = spell_white
@@ -491,8 +491,6 @@ while running:
     # Check to see if mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
     for hit in hits:
-        # strong mobs
-        # player.shield -= hit.radius * 100
 
         # mobs strength based on size
         player.shield -= hit.radius * 2
@@ -506,33 +504,12 @@ while running:
             death_explosion = Explosion(player.rect.center, 'player')
             all_sprites.add(death_explosion)
             player.hide()
-            player.lives -= 1
+            # player.lives -= 1
             player.shield = 100
-            # running = False
-
-    # check to see if player hit a powerup
-    # hits = pygame.sprite.spritecollide(player, powerups, True)
-    # for hit in hits:
-        # if hit.type == 'red':
-        # player.shield += 20
-            # if player.shield >= 100:
-                # player.shield = 100
-        # if hit.type == 'blue':
-            # player.shield += 20
-            # if player.shield >= 100:
-                # player.shield = 100
-        # if hit.type == 'yellow':
-            # player.shield += 20
-            # if player.shield >= 100:
-                # player.shield = 100
 
     # if the player died and the explosion has finished playing
     if player.lives == 0 and not death_explosion.alive():
         running = False
-
-    # Check to see if mob hits player block
-
-
 
     # Draw / render
     screen.fill(BLACK)
@@ -543,7 +520,7 @@ while running:
     draw_red_mana_bar(screen, 5, 5, player.red_mana)
     draw_yellow_mana_bar(screen, 5, 5, player.yellow_mana)
     draw_blue_mana_bar(screen, 5, 5, player.blue_mana)
-    draw_lives(screen, SCREEN_WIDTH - 100, 5, player.lives, player_mini_img)
+    # draw_lives(screen, SCREEN_WIDTH - 100, 5, player.lives, player_mini_img)
     # *after* drawing everything, flip the display
     pygame.display.flip()
 
