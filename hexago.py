@@ -412,6 +412,7 @@ score = 0
 # Music repeats
 pygame.mixer.music.play(loops=-1)
 # Game loop
+game_over = True
 running = True
 while running:
     # keep loop running at the right speed
