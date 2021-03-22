@@ -116,6 +116,21 @@ def draw_lives(surf, x, y, lives, img):
         img_rect.y = 550
         surf.blit(img, img_rect)
 
+def show_go_screen():
+    screen.blit(background, background_rect)
+    draw_text(screen, "HEXAGO!", 64, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
+    draw_text(screen, "Click to cast, Number to select mana", 22, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    draw_text(screen, 'Press a key to begin', 18, SCREEN_WIDTH / 2, SCREEN_HEIGHT * 3 /4)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYUP:
+                waiting = False
+
 class Player(pygame.sprite.Sprite):
     #sprite for the Player
     def __init__(self):
@@ -392,22 +407,7 @@ player_die_sound = pygame.mixer.Sound(os.path.join(snd_folder, 'quake.wav'))
 pygame.mixer.music.load(os.path.join(snd_folder, 'hexago.wav'))
 pygame.mixer.music.set_volume(0.4)
 
-all_sprites = pygame.sprite.Group()
-mobs = pygame.sprite.Group()
-# bullets = pygame.sprite.Group()
-spells = pygame.sprite.Group()
-powerups = pygame.sprite.Group()
 
-player = Player()
-mousex, mousey = pygame.mouse.get_pos()
-spell = Spell(mousex, mousey)
-all_sprites.add(player)
-
-
-for i in range(8):
-    newmob()
-
-score = 0
 
 # Music repeats
 pygame.mixer.music.play(loops=-1)
@@ -415,6 +415,25 @@ pygame.mixer.music.play(loops=-1)
 game_over = True
 running = True
 while running:
+    if game_over:
+        show_go_screen()
+        game_over = False
+        all_sprites = pygame.sprite.Group()
+        mobs = pygame.sprite.Group()
+        # bullets = pygame.sprite.Group()
+        spells = pygame.sprite.Group()
+        powerups = pygame.sprite.Group()
+
+        player = Player()
+        mousex, mousey = pygame.mouse.get_pos()
+        spell = Spell(mousex, mousey)
+        all_sprites.add(player)
+
+
+        for i in range(8):
+            newmob()
+
+        score = 0
     # keep loop running at the right speed
     clock.tick(FPS)
     # Process input (events)
@@ -505,12 +524,12 @@ while running:
             death_explosion = Explosion(player.rect.center, 'player')
             all_sprites.add(death_explosion)
             player.hide()
-            # player.lives -= 1
+            player.lives -= 1
             player.shield = 100
 
     # if the player died and the explosion has finished playing
     if player.lives == 0 and not death_explosion.alive():
-        running = False
+        game_over = True
 
     # Draw / render
     screen.fill(BLACK)
